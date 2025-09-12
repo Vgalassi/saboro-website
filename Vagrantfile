@@ -89,6 +89,7 @@ Vagrant.configure("2") do |config|
       # Instalar dependências e iniciar backend
       cd /home/vagrant/saboro/backend
       npm install
+      sudo mkdir images
 
       # Iniciar backend em background
       nohup npm start > /home/vagrant/saboro/backend/back.log 2>&1 &
