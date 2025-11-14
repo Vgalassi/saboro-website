@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # 1. Serviço de Banco de Dados
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: saboro
+    volumes:
+      - db_data:/var/lib/mysql
+    # --- ADICIONE ISTO ---
+    # Este 'healthcheck' verifica se o MySQL está pronto
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s # Tenta a cada 10 segundos
+      timeout: 5s   # Tempo limite da tentativa
+      retries: 5    # Tenta 5 vezes antes de falhar
+    # --------------------
+
+  # 2. Serviço de Backend
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/images:/app/images
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: saboro
+    # --- ALTERE ISTO ---
+    # 'depends_on' agora espera o 'healthcheck' passar
+    depends_on:
+      db:
+        condition: service_healthy # <--- Esta é a mudança chave
+    # --------------------
+
+  # 3. Serviço de Frontend
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
