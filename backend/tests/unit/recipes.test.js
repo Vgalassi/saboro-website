@@ -46,7 +46,7 @@ test("createRecipe deve retornar 401 se usuário não estiver logado", async () 
 });
 
 
-test("createRecipe retorna 404 se não enviar imagem", async () => {
+test("createRecipe retorna 400 se não enviar imagem", async () => {
   const req = {
     session: { isLoggedIn: true, user: { id: 1 }},
     body: { title: "Teste", description: "Desc" },
@@ -60,7 +60,7 @@ test("createRecipe retorna 404 se não enviar imagem", async () => {
 
   await createRecipe(req, res);
 
-  expect(res.status).toHaveBeenCalledWith(404);
+  expect(res.status).toHaveBeenCalledWith(400);
   expect(res.json).toHaveBeenCalledWith({ error: "Imagem inválida" });
 });
 
