@@ -3,6 +3,7 @@ const app = require('../../app');
 const sequelize = require('../../util/database');
 const Recipe = require('../../models/recipe');
 const User = require('../../models/user');
+const bcrypt = require("bcryptjs");
 
 describe('POST /api/create-recipe', () => {
 
@@ -15,7 +16,7 @@ describe('POST /api/create-recipe', () => {
     await User.create({
       name: "Teste",
       email: "teste@teste.com",
-      password: "123456"
+      password: await bcrypt.hash("123456", 12),
     });
 
     // 2. Fazer login para obter token
