@@ -3,9 +3,9 @@ const app = require("../../app");
 const { User, sequelize } = require("../../models");
 
 describe("POST /auth/register", () => {
-  beforeEach(async () => {
-    await sequelize.truncate({ cascade: true });
-  });
+    beforeEach(async () => {
+    await sequelize.sync({ force: true });
+    });
 
   it("deve registrar um usuário", async () => {
     const res = await request(app)

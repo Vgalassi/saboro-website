@@ -4,15 +4,15 @@ const { User, sequelize } = require("../../models");
 const bcrypt = require("bcryptjs");
 
 describe("POST /auth/login", () => {
-  beforeEach(async () => {
-    await sequelize.truncate({ cascade: true });
+    beforeEach(async () => {
+    await sequelize.sync({ force: true });
 
     await User.create({
-      name: "Teste",
-      email: "login@teste.com",
-      password: await bcrypt.hash("123456", 12),
+        name: "Teste",
+        email: "login@teste.com",
+        password: await bcrypt.hash("123456", 12),
     });
-  });
+    });
 
   it("deve fazer login com sucesso", async () => {
     const res = await request(app)

@@ -5,24 +5,22 @@ const bcrypt = require("bcryptjs");
 
 describe("POST /recipes/create", () => {
   let agent;
-
-  beforeEach(async () => {
-    await sequelize.truncate({ cascade: true });
+    beforeEach(async () => {
+    await sequelize.sync({ force: true });
 
     agent = request.agent(app);
 
-    await User.create({
-      name: "User Test",
-      email: "recipe@teste.com",
-      password: await bcrypt.hash("123456", 12),
+    const user = await User.create({
+        name: "User Test",
+        email: "recipe@teste.com",
+        password: await bcrypt.hash("123456", 12),
     });
 
     await agent.post("/auth/login").send({
-      email: "recipe@teste.com",
-      password: "123456",
+        email: "recipe@teste.com",
+        password: "123456",
     });
-  });
-
+});
   it("deve criar uma receita autenticado", async () => {
     const res = await agent
       .post("/recipes/create")
