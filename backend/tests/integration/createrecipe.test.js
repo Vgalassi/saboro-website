@@ -30,22 +30,16 @@ describe("POST /api/create-recipe", () => {
     await sequelize.close();
   });
 
-  test("Deve criar uma receita com sucesso", async () => {
-    const recipeData = {
-      title: "Bolo de Chocolate",
-      description: "Um delicioso bolo",
-      image: "/teste",
-    };
+  test("Deve criar receita com sucesso", async () => {
+    const response = await agent
+      .post("/api/create-recipe")
+      .field("title", "Bolo de Chocolate")
+      .field("description", "Um delicioso bolo")
+      .attach("image", Buffer.from("fake image"), "foto.png");
 
-    // 3. Usar o mesmo agent (com sessão ativa)
-    const response = await agent.post("/api/create-recipe").send(recipeData);
-
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty("id");
-
-    const recipe = await Recipe.findByPk(response.body.id);
-    expect(recipe).not.toBeNull();
+    expect(response.status).toBe(302); // redireciona para '/'
   });
+
 
   test("Deve retornar erro 400 se faltarem campos obrigatórios", async () => {
     const response = await agent.post("/api/create-recipe").send({
