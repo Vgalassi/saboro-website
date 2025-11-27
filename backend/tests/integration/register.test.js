@@ -2,14 +2,14 @@ const request = require("supertest");
 const app = require("../../app");
 const { User, sequelize } = require("../../models");
 
-describe("POST /auth/register", () => {
+describe("POST /api/register", () => {
     beforeEach(async () => {
     await sequelize.sync({ force: true });
     });
 
   it("deve registrar um usuário", async () => {
     const res = await request(app)
-      .post("/auth/register")
+      .post("/api/register")
       .send({
         name: "Teste",
         email: "teste@teste.com",

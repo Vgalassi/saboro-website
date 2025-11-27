@@ -3,7 +3,7 @@ const app = require("../../app");
 const { User, sequelize } = require("../../models");
 const bcrypt = require("bcryptjs");
 
-describe("POST /auth/login", () => {
+describe("POST /api/login", () => {
     beforeEach(async () => {
     await sequelize.sync({ force: true });
 
@@ -16,7 +16,7 @@ describe("POST /auth/login", () => {
 
   it("deve fazer login com sucesso", async () => {
     const res = await request(app)
-      .post("/auth/login")
+      .post("/api/login")
       .send({
         email: "login@teste.com",
         password: "123456",
