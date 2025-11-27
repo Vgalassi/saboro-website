@@ -4,8 +4,9 @@
   "description": "saboro server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "test": "jest --runInBand",
+    "test:unit": "jest tests/unit --runInBand",
+    "test:integration": "jest tests/integration --runInBand"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,12 @@
   },
   "homepage": "https://github.com/Vgalassi/saboro#readme",
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@jest/globals": "^30.2.0",
+    "jest": "^30.2.0",
+    "jest-mock": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "sequelize-mock": "^0.10.2",
+    "supertest": "^7.1.4"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

@@ -1,119 +1,85 @@
-name: CI de Testes (Backend e Frontend)
+name: CI Pipeline
 
-# Controla quando o workflow será executado
 on:
   push:
-    branches: [ main ] # Altere 'main' se sua branch principal for outra
+    branches: ["main"]
   pull_request:
-    branches: [ main ] # Altere 'main' se sua branch principal for outra
 
 jobs:
-  # -----------------------------------------------
-  # Job 1: Rodar Testes Unitários do Backend
-  # -----------------------------------------------
-  backend-unit-tests:
-    [cite_start]runs-on: ubuntu-latest # O "sandbox" do GitHub [cite: 15]
-
-    services:
-      # [cite_start]Inicia um container Docker com o banco de dados MySQL [cite: 16]
-      # Isso garante que seus testes tenham um BD real para se conectar
-      mysql-db:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root # Senha que você usa no database.js
-          MYSQL_DATABASE: saboro     # Nome do banco que você usa no database.js
-        ports:
-          - 3306:3306 # Expõe a porta do BD para o runner
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+  # -------------------------
+  # 1. BACKEND UNIT TESTS
+  # -------------------------
+  unit-tests:
+    name: Backend Unit Tests
+    runs-on: ubuntu-latest
 
     steps:
-      - name: 1. Checkout do Código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: 2. Configurar Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: 18 # Use a versão do Node que você usa localmente
+          node-version: 20
 
-      - name: 3. Instalar Dependências do Backend
-        # 'npm ci' é mais rápido e seguro para CI do que 'npm install'
-        run: npm ci
+      - name: Install backend deps
+        working-directory: ./backend
+        run: npm install
 
-      - name: 4. Rodar Testes Unitários (Jest)
-        run: npm test
+      - name: Run backend UNIT tests
+        working-directory: ./backend
         env:
-          # Informa ao app Node.js como se conectar ao container do BD
-          # Veja o "Passo de Preparação 1" abaixo
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASS: root
-          DB_NAME: saboro
-          CI: true
+          NODE_ENV: test
+        run: npm run test:unit
 
-  # -----------------------------------------------
-  # Job 2: Rodar Testes E2E (Cypress)
-  # -----------------------------------------------
-  frontend-e2e-tests:
+  # -------------------------
+  # 2. BACKEND INTEGRATION TESTS
+  # -------------------------
+  integration-tests:
+    name: Backend Integration Tests
     runs-on: ubuntu-latest
-    needs: backend-unit-tests # Opcional: só roda se os testes de backend passarem
+    needs: unit-tests  # só roda depois que passar unit tests
 
     services:
-      # Este job também precisa de um banco de dados para o backend
-      mysql-db:
+      mysql:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: saboro
+          MYSQL_DATABASE: saboro_test
         ports:
-          - 3306:3306
+          - 3307:3306
         options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd "mysqladmin ping -h localhost -uroot -proot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
-      - name: 1. Checkout do Código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: 2. Configurar Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: 3. Instalar Dependências do Backend (na raiz)
-        run: npm ci
+      - name: Install backend deps
+        working-directory: ./backend
+        run: npm install
 
-      - name: 4. Instalar Dependências do Frontend (na subpasta)
-        # Presumindo que seu frontend está na pasta 'frontend/'
-        run: npm ci --prefix frontend
+      - name: Wait for MySQL
+        run: |
+          for i in {1..15}; do
+            nc -z 127.0.0.1 3307 && echo "MySQL is ready" && break
+            echo "Waiting MySQL..."
+            sleep 4
+          done
 
-      - name: 5. Rodar Testes E2E (Cypress)
-        # Esta ação popular cuida de tudo: instala o Cypress,
-        # inicia os servidores (backend e frontend) e roda os testes.
-        uses: cypress-io/github-action@v6
-        with:
-          # Diz ao Cypress onde está o package.json dele
-          working-directory: frontend
-          
-          # Inicia AMBOS os servidores
-          start: |
-            npm start --prefix ../ & # Inicia o Backend (na pasta pai)
-            npm start &              # Inicia o Frontend (na pasta 'frontend')
-            
-          # Espera o frontend (React) carregar antes de testar
-          wait-on: 'http://localhost:3000' 
-          wait-on-timeout: 120 # Espera até 2 minutos
-          
+      - name: Run backend INTEGRATION tests
+        working-directory: ./backend
         env:
-          # Env para o Backend (npm start --prefix ../)
           DB_HOST: 127.0.0.1
+          DB_PORT: 3307
           DB_USER: root
           DB_PASS: root
-          DB_NAME: saboro
-          # Env para o Frontend (npm start)
-          CI: true
+          DB_NAME: saboro_test
+          NODE_ENV: test
+        run: npm run test:integration
