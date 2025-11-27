@@ -3,7 +3,7 @@ const app = require('../../app');
 const sequelize = require('../../util/database');
 const Recipe = require('../../models/recipe.js');
 
-describe('POST /recipes', () => {
+describe('POST /api/create-recipe', () => {
 
   // Antes de qualquer teste, prepara um DB limpo
   beforeAll(async () => {
@@ -19,12 +19,11 @@ describe('POST /recipes', () => {
     const recipeData = {
       title: 'Bolo de Chocolate',
       description: 'Um delicioso bolo',
-      ingredients: 'farinha, leite, chocolate',
-      steps: 'Misture tudo e asse'
+      image: '/teste'
     };
 
     const response = await request(app)
-      .post('/recipes')
+      .post('/api/create-recipe')
       .send(recipeData);
 
     expect(response.status).toBe(201);
@@ -39,7 +38,7 @@ describe('POST /recipes', () => {
 
   test('Deve retornar erro 400 se faltarem campos obrigatórios', async () => {
     const response = await request(app)
-      .post('/recipes')
+      .post('/api/create-recipe')
       .send({
         title: 'Sem descrição'
       });
