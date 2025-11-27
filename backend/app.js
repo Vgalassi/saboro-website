@@ -40,7 +40,7 @@ app.use(usersRouter);
 
 Recipe.belongsTo(User,{constraints: true, onDelete: 'CASCADE'});
 
-sequelize.sync({force: true})
+sequelize.sync()
   .then( result => {
     app.listen(3001,'0.0.0.0')
 
