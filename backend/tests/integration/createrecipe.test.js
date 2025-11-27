@@ -1,33 +1,50 @@
-const request = require("supertest");
-const app = require("../../app");
-const { User, Recipe, sequelize } = require("../../models");
-const bcrypt = require("bcryptjs");
+const request = require('supertest');
+const app = require('../app');
+const sequelize = require('../util/database');
+const Recipe = require('../models/Recipe');
 
-describe("POST /recipes/create", () => {
-  let agent;
-    beforeEach(async () => {
+describe('POST /recipes', () => {
+
+  // Antes de qualquer teste, prepara um DB limpo
+  beforeAll(async () => {
     await sequelize.sync({ force: true });
+  });
 
-    agent = request.agent(app);
+  // Após todos os testes, fecha a conexão
+  afterAll(async () => {
+    await sequelize.close();
+  });
 
-    const user = await User.create({
-        name: "User Test",
-        email: "recipe@teste.com",
-        password: await bcrypt.hash("123456", 12),
-    });
+  test('Deve criar uma receita com sucesso', async () => {
+    const recipeData = {
+      title: 'Bolo de Chocolate',
+      description: 'Um delicioso bolo',
+      ingredients: 'farinha, leite, chocolate',
+      steps: 'Misture tudo e asse'
+    };
 
-    await agent.post("/auth/login").send({
-        email: "recipe@teste.com",
-        password: "123456",
-    });
-});
-  it("deve criar uma receita autenticado", async () => {
-    const res = await agent
-      .post("/recipes/create")
-      .field("title", "Minha Receita")
-      .field("description", "Descrição teste")
-      .attach("image", "__tests__/files/test.jpg");
+    const response = await request(app)
+      .post('/recipes')
+      .send(recipeData);
 
-    expect(res.status).toBe(302);
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.title).toBe('Bolo de Chocolate');
+
+    // Confere se salvou no banco
+    const recipeInDb = await Recipe.findByPk(response.body.id);
+    expect(recipeInDb).not.toBeNull();
+    expect(recipeInDb.title).toBe('Bolo de Chocolate');
+  });
+
+  test('Deve retornar erro 400 se faltarem campos obrigatórios', async () => {
+    const response = await request(app)
+      .post('/recipes')
+      .send({
+        title: 'Sem descrição'
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
   });
 });
