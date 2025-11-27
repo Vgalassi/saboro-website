@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../app');
-const sequelize = require('../util/database');
-const Recipe = require('../models/Recipe');
+const sequelize = require('../../util/database');
+const Recipe = require('../../models/recipe.js');
 
 describe('POST /recipes', () => {
 
