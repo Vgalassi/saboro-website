@@ -1,10 +1,10 @@
 const request = require("supertest");
 const app = require("../../app");
-const User = require("../../models/user");
+const { User, sequelize } = require("../../models");
 
 describe("POST /auth/register", () => {
-  beforeAll(async () => {
-    await User.destroy({ where: {} });
+  beforeEach(async () => {
+    await sequelize.truncate({ cascade: true });
   });
 
   it("deve registrar um usuário", async () => {

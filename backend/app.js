@@ -40,12 +40,18 @@ app.use(usersRouter);
 
 Recipe.belongsTo(User,{constraints: true, onDelete: 'CASCADE'});
 
-sequelize.sync()
+
+
+if (process.env.NODE_ENV !== "test") {
+  sequelize.sync()
   .then( result => {
     app.listen(3001,'0.0.0.0')
 
   }
 );
+}
+
+
 
 
 

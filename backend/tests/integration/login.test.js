@@ -1,11 +1,11 @@
 const request = require("supertest");
 const app = require("../../app");
-const User = require("../../models/user.js");
+const { User, sequelize } = require("../../models");
 const bcrypt = require("bcryptjs");
 
 describe("POST /auth/login", () => {
-  beforeAll(async () => {
-    await User.destroy({ where: {} });
+  beforeEach(async () => {
+    await sequelize.truncate({ cascade: true });
 
     await User.create({
       name: "Teste",
