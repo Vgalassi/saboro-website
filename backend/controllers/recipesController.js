@@ -23,7 +23,7 @@ exports.createRecipe = (req, res, next) => {
   const newDescription = req.body.description;
   const image = req.file;
   if(!image){
-     return res.status(404).json({ error: "Imagem inválida" });
+     return res.status(400).json({ error: "Imagem inválida" });
   }
   const imageUrl = `/images/${req.file.filename}`;
   Recipe.create(
