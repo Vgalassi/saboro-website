@@ -26,7 +26,8 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - ./backend/images:/app/images
+      - ./backend:/app
+      - /app/node_modules
     environment:
       DB_HOST: db
       DB_USER: root
