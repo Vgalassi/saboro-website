@@ -49,7 +49,5 @@ Recipe.belongsTo(User, {
   onDelete: 'CASCADE'
 });
 
-// ❌ NÃO coloque .listen() aqui
-// ❌ NÃO coloque sequelize.sync() aqui
 
 module.exports = app;

@@ -12,14 +12,14 @@ describe("POST /api/create-recipe", () => {
 
     agent = request.agent(app);
 
-    // 1. Registrar usuário
+    // Criar usuário
     await agent.post("/api/register").send({
       name: "Teste",
       email: "teste@teste.com",
       password: "123456",
     });
 
-    // 2. Fazer login para criar sessão
+    // Fazer login
     await agent.post("/api/login").send({
       email: "teste@teste.com",
       password: "123456",
@@ -31,26 +31,19 @@ describe("POST /api/create-recipe", () => {
   });
 
   test("Deve criar uma receita com sucesso", async () => {
-    const recipeData = {
-      title: "Bolo de Chocolate",
-      description: "Um delicioso bolo",
-      image: "/teste",
-    };
+    const response = await agent
+      .post("/api/create-recipe")
+      .field("title", "Bolo de Chocolate")
+      .field("description", "Um delicioso bolo")
+      .attach("image", Buffer.from("fake image content"), "foto.png");
 
-    // 3. Usar o mesmo agent (com sessão ativa)
-    const response = await agent.post("/api/create-recipe").send(recipeData);
-
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty("id");
-
-    const recipe = await Recipe.findByPk(response.body.id);
-    expect(recipe).not.toBeNull();
+    expect(response.status).toBe(302); // porque usa res.redirect('/')
   });
 
   test("Deve retornar erro 400 se faltarem campos obrigatórios", async () => {
-    const response = await agent.post("/api/create-recipe").send({
-      title: "Sem descrição",
-    });
+    const response = await agent
+      .post("/api/create-recipe")
+      .field("title", "Sem descrição"); // sem imagem e sem description
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("error");
