@@ -16,6 +16,7 @@ exports.getIndexRecipes = (req, res, next) => {
 
 
 exports.createRecipe = (req, res, next) => {
+  return 0;
   if(!req.session.isLoggedIn){
     return res.status(401).json({ error: "Usuário não autenticado" });
   }
