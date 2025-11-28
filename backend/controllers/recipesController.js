@@ -25,6 +25,9 @@ exports.createRecipe = (req, res, next) => {
   if(!image){
      return res.status(400).json({ error: "Imagem inválida" });
   }
+
+  console.log("Dados da Sessão:", req.session);
+  console.log("ID do Usuário:", req.session.user.id);
   const imageUrl = `/images/${req.file.filename}`;
   Recipe.create(
     {
@@ -36,7 +39,16 @@ exports.createRecipe = (req, res, next) => {
   ).then( result => {
     res.redirect('/');
   }
-  ).catch(err => console.log(err))
+  ).catch(err => {
+    console.error("ERRO AO CRIAR RECEITA:", err);
+    res.status(500).json({ 
+        error: "Falha ao salvar a receita no banco de dados", 
+        details: err.message || "Erro desconhecido" 
+    });
+
+
+
+  })
 }
 
 exports.fetchRecipe = (req,res,next) => {
