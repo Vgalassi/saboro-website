@@ -62,6 +62,7 @@ test("createRecipe deve retornar 401 se usuário não estiver logado", async () 
 });
 
 
+
 //Testando create sem retornar imagem
 test("createRecipe retorna 400 se não enviar imagem", async () => {
   const req = {
@@ -81,7 +82,7 @@ test("createRecipe retorna 400 se não enviar imagem", async () => {
   expect(res.status).toHaveBeenCalledWith(400);
   expect(res.json).toHaveBeenCalledWith({ error: "Imagem inválida" });
 });
-
+//oi
 
 test("createRecipe cria receita quando tudo está OK", async () => {
 
