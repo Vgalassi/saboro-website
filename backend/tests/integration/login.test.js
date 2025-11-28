@@ -31,5 +31,10 @@ describe("POST /api/login", () => {
     expect(res.status).toBe(200);
     //Espera corpo.user.email com login@teste.com
     expect(res.body.user.email).toBe("login@teste.com");
+
+    expect(res.headers["set-cookie"]).toBeDefined();
+
+    const cookie = res.headers["set-cookie"][0];
+    expect(cookie).toMatch(/connect.sid/);
   });
 });
