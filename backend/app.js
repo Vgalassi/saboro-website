@@ -1,8 +1,7 @@
-// app.js
 const path = require('path');
 const express = require('express');
 const sequelize = require('./util/database.js');
-// Remover: const multer = require('multer'); // Não precisamos dele aqui
+const multer = require('multer');
 const recipesRouter = require('./routes/recipes.js');
 const usersRouter = require('./routes/users.js');
 const Recipe = require('./models/recipe');
@@ -14,24 +13,40 @@ const app = express();
 
 app.use("/images", express.static(path.join(process.cwd(), "images")));
 
-// Os middlewares de processamento de corpo (JSON) e CORS devem vir antes das rotas
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images')
+  },
+  filename: (req, file, cb) => {
+    const safeName = Date.now() + '-' + file.originalname.replace(/\s+/g, '_');
+    cb(null, safeName);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+app.use(multer({ storage: fileStorage, fileFilter }).single('image'));
 app.use(cors());
-app.use(express.json()); 
+app.use(express.json());
 app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false }));
 
-// Rota para outros endpoints (login, register, etc.)
+app.use(recipesRouter);
 app.use(usersRouter);
-
-// Rota para receitas, onde a lógica do Multer será aplicada
-app.use(recipesRouter); 
-
-// Remover: app.use(multer({ storage: fileStorage, fileFilter }).single('image')); 
-// As configurações do Multer foram movidas para 'routes.js'
 
 // relacionamentos
 Recipe.belongsTo(User, {
-  constraints: true,
-  onDelete: 'CASCADE'
+  constraints: true,
+  onDelete: 'CASCADE'
 });
 
 
