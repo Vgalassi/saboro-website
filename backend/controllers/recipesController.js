@@ -15,30 +15,38 @@ exports.getIndexRecipes = (req, res, next) => {
 
 
 
-exports.createRecipe = (req, res, next) => {
-  if(!req.session.isLoggedIn){
+exports.createRecipe = async (req, res) => {
+  if (!req.session.isLoggedIn) {
     return res.status(401).json({ error: "Usuário não autenticado" });
   }
-  const newTitle = req.body.title;
-  const newDescription = req.body.description;
-  const image = req.file;
-  if(!image){
-     return res.status(400).json({ error: "Imagem inválida" });
-  }
-  const imageUrl = `/images/${req.file.filename}`;
-  Recipe.create(
-    {
-      title: newTitle,
-      description: newDescription,
-      image: imageUrl,
-      userId: req.session.user.id
-    }
-  ).then( result => {
-    res.redirect('/');
-  }
-  ).catch(err => console.log(err))
-}
 
+  const { title, description } = req.body;
+  const image = req.file;
+
+  if (!title || !description) {
+    return res.status(400).json({ error: "Campos obrigatórios faltando" });
+  }
+
+  if (!image) {
+    return res.status(400).json({ error: "Imagem inválida" });
+  }
+
+  const imageUrl = `/images/${image.filename}`;
+
+  try {
+    const recipe = await Recipe.create({
+      title,
+      description,
+      image: imageUrl,
+      userId: req.session.user.id,
+    });
+
+    return res.status(201).json(recipe); // <- importante para testes
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro no servidor" });
+  }
+};
 exports.fetchRecipe = (req,res,next) => {
   const recipeId = req.params.recipeId
 
