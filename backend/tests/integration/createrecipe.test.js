@@ -1,25 +1,22 @@
 const request = require("supertest");
 const app = require("../../app");
 const sequelize = require("../../util/database");
-const Recipe = require("../../models/recipe");
-const User = require("../../models/user");
 
 describe("POST /api/create-recipe", () => {
-  let agent; // mantém sessão
+  let agent;
 
   beforeAll(async () => {
     await sequelize.sync({ force: true });
-
     agent = request.agent(app);
 
-    // Criar usuário
+    // Cria usuário
     await agent.post("/api/register").send({
       name: "Teste",
       email: "teste@teste.com",
       password: "123456",
     });
 
-    // Fazer login
+    // Faz login (mantém cookie na sessão)
     await agent.post("/api/login").send({
       email: "teste@teste.com",
       password: "123456",
@@ -30,20 +27,22 @@ describe("POST /api/create-recipe", () => {
     await sequelize.close();
   });
 
-  test("Deve criar uma receita com sucesso", async () => {
+  test("Deve criar receita com sucesso", async () => {
     const response = await agent
       .post("/api/create-recipe")
       .field("title", "Bolo de Chocolate")
       .field("description", "Um delicioso bolo")
-      .attach("image", Buffer.from("fake image content"), "foto.png");
+      .attach("image", Buffer.from("fake image"), "foto.png");
 
-    expect(response.status).toBe(302); // porque usa res.redirect('/')
+    // O controller faz res.redirect("/")
+    expect(response.status).toBe(302);
+    expect(response.header.location).toBe("/");
   });
 
   test("Deve retornar erro 400 se faltarem campos obrigatórios", async () => {
     const response = await agent
       .post("/api/create-recipe")
-      .field("title", "Sem descrição"); // sem imagem e sem description
+      .field("title", "Bolo sem descrição");
 
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("error");
