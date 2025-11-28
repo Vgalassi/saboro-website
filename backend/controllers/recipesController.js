@@ -107,7 +107,7 @@ exports.fetchRecipeWithUser = (req, res, next) => {
   Recipe.findByPk(recipeId, {
     include: [{
       model: User,
-      attributes: ["name"] // só pegar o nome
+      attributes: ["name"] 
     }]
   })
   .then(recipe => {

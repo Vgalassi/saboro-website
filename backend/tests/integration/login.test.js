@@ -4,9 +4,12 @@ const { User, sequelize } = require("../../models");
 const bcrypt = require("bcryptjs");
 
 describe("POST /api/login", () => {
+    //Limpando banco de dados
     beforeEach(async () => {
     await sequelize.sync({ force: true });
 
+
+    //Criando usuário direto do banco
     await User.create({
         name: "Teste",
         email: "login@teste.com",
@@ -14,7 +17,9 @@ describe("POST /api/login", () => {
     });
     });
 
+  
   it("deve fazer login com sucesso", async () => {
+    //Utilizando método post em /api/login
     const res = await request(app)
       .post("/api/login")
       .send({
@@ -22,7 +27,9 @@ describe("POST /api/login", () => {
         password: "123456",
       });
 
+    //Espera resposta 200
     expect(res.status).toBe(200);
+    //Espera corpo.user.email com login@teste.com
     expect(res.body.user.email).toBe("login@teste.com");
   });
 });

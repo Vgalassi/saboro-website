@@ -4,12 +4,14 @@ const sequelize = require("../../util/database");
 const Recipe = require("../../models/recipe");
 const User = require("../../models/user");
 
-describe("POST /api/create-recipe", () => {
+describe("POST /api/edit-recipe", () => {
   let agent;
 
   beforeAll(async () => {
+    //Limpando banco de dados
     await sequelize.sync({ force: true });
 
+    //Utilizando agent para manter o login
     agent = request.agent(app);
 
     // Registrar usuário
@@ -31,7 +33,7 @@ describe("POST /api/create-recipe", () => {
   });
 
   test("Deve editar uma receita com sucesso", async () => {
-    // Criar receita diretamente no banco
+    // Criar receita 
     const recipe = await Recipe.create({
       title: "Velho",
       description: "Descrição antiga",
@@ -46,6 +48,7 @@ describe("POST /api/create-recipe", () => {
       image: "/novo.png",
     };
 
+    //Enviando post para /api/edit-recipe/{recipe.id}
     const response = await agent
       .post(`/api/edit-recipe/${recipe.id}`)
       .send(updatedData);
@@ -58,5 +61,6 @@ describe("POST /api/create-recipe", () => {
 
     expect(updated.title).toBe("Novo título");
     expect(updated.description).toBe("Nova descrição");
+    expect(updated.image).toBe("/novo.png");
   });
 });

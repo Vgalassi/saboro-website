@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const User = require("../models/user"); // ajuste o caminho conforme seu projeto
+const User = require("../models/user"); 
 
 exports.register = async (req, res, next) => {
   try {
