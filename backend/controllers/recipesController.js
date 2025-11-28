@@ -19,6 +19,7 @@ exports.createRecipe = (req, res, next) => {
   if(!req.session.isLoggedIn){
     return res.status(401).json({ error: "Usuário não autenticado" });
   }
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   const newTitle = req.body.title;
   const newDescription = req.body.description;
   const image = req.file;
