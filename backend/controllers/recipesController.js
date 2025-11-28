@@ -22,10 +22,12 @@ exports.createRecipe = (req, res, next) => {
   console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   const newTitle = req.body.title;
   const newDescription = req.body.description;
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAA2");
   const image = req.file;
   if(!image){
      return res.status(400).json({ error: "Imagem inválida" });
   }
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAA3");
   const imageUrl = `/images/${req.file.filename}`;
   console.log("teste");
   Recipe.create(
