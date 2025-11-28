@@ -6,7 +6,7 @@ const User = require("../../models/user");
 const path = require("path"); // Importar 'path' para resolver o caminho do arquivo
 
 // Caminho para uma imagem de teste (substitua pelo seu caminho real)
-const TEST_IMAGE_PATH = path.resolve(__dirname, 'test-image.png'); 
+const TEST_IMAGE_PATH = path.resolve(__dirname, 'test-image.jpg'); 
 // Certifique-se de que este arquivo existe para o teste funcionar!
 
 describe("POST /api/create-recipe", () => {
