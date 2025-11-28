@@ -5,11 +5,7 @@ const recipesController = require('../controllers/recipesController.js')
 
 router.get('/api', recipesController.getIndexRecipes);
 
-router.post(
-  "/create-recipe",
-  upload.single("image"),
-  recipeController.createRecipe
-);
+router.post('/api/create-recipe', recipesController.createRecipe);
 
 router.get('/api/find-recipe/:recipeId',recipesController.fetchRecipe);
 
